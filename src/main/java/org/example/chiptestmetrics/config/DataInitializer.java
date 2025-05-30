@@ -3,6 +3,8 @@ package org.example.chiptestmetrics.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.chiptestmetrics.model.TestMetric;
 import org.example.chiptestmetrics.repository.TestMetricRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +15,7 @@ import java.io.InputStream;
 
 @Component
 public class DataInitializer {
+    private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @Autowired
     private TestMetricRepository repository;
@@ -22,7 +25,7 @@ public class DataInitializer {
         return args -> {
             // 檢查資料庫是否已有數據，若有則不進行初始化
             if (repository.count() > 0) {
-                System.out.println("Database already contains data. Skipping initialization.");
+                logger.info("Database already contains data. Skipping initialization.");
                 return;
             }
 
@@ -36,10 +39,9 @@ public class DataInitializer {
                 for (TestMetric metric : metrics) {
                     repository.save(metric);
                 }
-                System.out.println("Test data initialized with " + metrics.length + " entries.");
+                logger.info("Test data initialized with {} entries.", metrics.length);
             } catch (Exception e) {
-                System.err.println("Failed to initialize test data: " + e.getMessage());
-                e.printStackTrace();
+                logger.error("Failed to initialize test data: {}", e.getMessage(), e);
             }
         };
     }
